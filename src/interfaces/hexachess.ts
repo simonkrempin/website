@@ -1,6 +1,9 @@
 export interface IFiguresBoardProps {
     figures: IHexaChessFigure[];
+    onFigureClick: (figure: IHexaChessFigure) => void;
 }
+
+export type pieceTypes = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 
 export interface IHexaChessFigure {
     type: "king" | "queen" | "bishop" | "knight" | "rook" | "pawn";
@@ -13,3 +16,13 @@ export interface IHexaChessPosition {
     r: number;
     s: number;
 }
+
+// interface Array<T> {
+//     contains(position: IHexaChessPosition): boolean;
+// }
+
+// if (!Array.prototype.contains) {
+//     Array.prototype.contains = function (position: IHexaChessPosition) {
+//         return this.some((item: IHexaChessPosition) => item.q === position.q && item.r === position.r && item.s === position.s);
+//     };
+// }

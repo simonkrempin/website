@@ -2,16 +2,20 @@
   fill-opacity: 0.6;
   pointer-events: auto;
 }
-svg g {
+.tile {
   fill: #dea550;
   fill-opacity: 0.6;
 }
-svg g:hover {
-  fill-opacity: 1;
-}
-svg g:hover text {
-  fill-opacity: 1;
+.tile:hover {
+  fill-opacity: 0.7;
 }
 .board {
   pointer-events: none;
+}
+.mark {
+  fill: #d69a3f;
+  fill-opacity: 0.8;
+}
+.mark:hover {
+  fill-opacity: 1;
 }

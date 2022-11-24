@@ -1,12 +1,56 @@
+/**
+ * This class is responsible for the game logic.
+ * Possibles moves are calculated here.
+ * The game state is stored here.
+ * The game state is updated here.
+ * The piece movement is handled here.
+ */
+
 import React from "react";
-import { IHexaChessFigure } from "../../interfaces/hexachess";
+import { IHexaChessFigure, IHexaChessPosition, pieceTypes } from "../../interfaces/hexachess";
 import { Pieces, Board } from "./board";
 
 export const testIds = {
     frame: "frame"
 }
 
+const getMovableTiles = (figure: IHexaChessFigure | null): IHexaChessPosition[] | undefined => {
+    if (!figure) return undefined;
+    
+    const possibleMoves: Record<pieceTypes, any> = {
+        "king": () => {
+            return [
+                { q: figure.position.q, r: figure.position.r - 1, s: figure.position.s + 1 },
+                { q: figure.position.q + 1, r: figure.position.r - 1, s: figure.position.s },
+                { q: figure.position.q + 1, r: figure.position.r, s: figure.position.s - 1 },
+                { q: figure.position.q, r: figure.position.r + 1, s: figure.position.s - 1 },
+                { q: figure.position.q - 1, r: figure.position.r, s: figure.position.s + 1 },
+                { q: figure.position.q - 1, r: figure.position.r + 1, s: figure.position.s },
+            ];
+        },
+        "bishop": () => {
+            return [];
+        },
+        "rook": () => {
+            return [];
+        },
+        "knight": () => {
+            return [];
+        },
+        "pawn": () => {
+            return [];
+        },
+        "queen": () => {
+            return [];
+        },
+    }
+
+    return possibleMoves[figure.type]();
+}
+
 export const GameEngine = () => {
+    const [ selectedPiece, setSelectedPiece ] = React.useState<IHexaChessFigure | null>(null);
+
     const pieces: IHexaChessFigure[] = [
         { type: "king", color: "black", position: { q: 1, r: 4, s: -5 } },
         { type: "queen", color: "black", position: { q: -1, r: 5, s: -5 } },
@@ -45,14 +89,14 @@ export const GameEngine = () => {
         { type: "pawn", color: "white", position: { q: 2, r: -3, s: 1 } },
         { type: "pawn", color: "white", position: { q: 3, r: -4, s: 1 } },
         { type: "pawn", color: "white", position: { q: 4, r: -5, s: 1 } },
-    ];
+    ];    
 
     return(
         <div
             data-testid={testIds.frame}
         >
-            <Board/>
-            <Pieces figures={pieces}/>
+            <Board highlightTiles={getMovableTiles(selectedPiece)}/>
+            <Pieces figures={pieces} onFigureClick={setSelectedPiece}/>
         </div>
     );
 }

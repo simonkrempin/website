@@ -2,18 +2,23 @@ import React, { ReactElement } from 'react';
 import { HexGrid, Layout, Hexagon, Text, Pattern, Path, Hex } from 'react-hexgrid';
 import './board.css';
 import { ReactSVG } from 'react-svg';
-import { IFiguresBoardProps } from '../../interfaces/hexachess';
+import { IFiguresBoardProps, IHexaChessPosition } from '../../interfaces/hexachess';
 
 export const testId = 'board';
 
-export const CreateHexagon = (props: { boardSize: number }): ReactElement[] => {
+const highlightTilesContains = (position: IHexaChessPosition, positions: IHexaChessPosition[]): boolean => {
+    return positions.some((pos) => pos.q === position.q && pos.r === position.r);
+};
+
+
+export const CreateHexagon = (props: { boardSize: number, highlightTiles: IHexaChessPosition[] }): ReactElement[] => {
     let res: ReactElement[] = [];
 
     for (let q = -props.boardSize; q <= props.boardSize; q++) {
         for (let s = -props.boardSize; s <= props.boardSize; s++) {
-            for (let r = -props.boardSize; r <= props.boardSize; r++) {
+            for (let r = -props.boardSize; r <= props.boardSize; r++) { 
                 if (q + r + s === 0) {
-                    res.push(<Hexagon q={q} r={r} s={s} key={`${q}${r}${s}`} className='piece'/>);
+                    res.push(<Hexagon q={q} r={r} s={s} key={`${q}${r}${s}`} className={highlightTilesContains( { q, r, s}, props.highlightTiles) ? 'mark' : 'tile'}/>);
                 }
             }
         }
@@ -22,7 +27,7 @@ export const CreateHexagon = (props: { boardSize: number }): ReactElement[] => {
     return res;
 }
 
-export const Board = (props: { boardSize?: number }) => {
+export const Board = (props: { boardSize?: number, highlightTiles?: IHexaChessPosition[] }) => {
     return(
         <div 
             data-testid='board'
@@ -41,7 +46,7 @@ export const Board = (props: { boardSize?: number }) => {
                 overflow: 'hidden',
             }}>
                 <Layout size={{ x: 5, y: 5 }} flat={true} spacing={1.0} origin={{ x: 0, y: 0 }}>
-                    {CreateHexagon({ boardSize: props.boardSize ?? 5})}
+                    {CreateHexagon({ boardSize: props.boardSize ?? 5, highlightTiles: props.highlightTiles ?? [] })}
                 </Layout>
             </HexGrid>
         </div>
@@ -49,6 +54,10 @@ export const Board = (props: { boardSize?: number }) => {
 };
 
 export const Pieces = (props: IFiguresBoardProps) => {
+    const onFigureClick = (event: any, source: any) => {
+        props.onFigureClick(source.props.data);
+    }
+
     const generatePiecePositions = (): ReactElement[] => {
         return props.figures.map((figure, index) => {
             return (
@@ -59,6 +68,8 @@ export const Pieces = (props: IFiguresBoardProps) => {
                     key={index} 
                     fill={`${figure.type}-${figure.color}`} 
                     className='piece'
+                    data={figure}
+                    onClick={onFigureClick}
                 />
             );
         });
