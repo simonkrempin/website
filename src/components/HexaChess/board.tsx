@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { HexGrid, Layout, Hexagon, Text, Pattern, Path, Hex } from 'react-hexgrid';
 import './board.css';
 import { ReactSVG } from 'react-svg';
+import { IFiguresBoardProps } from '../../interfaces/hexachess';
 
 export const testId = 'board';
 
@@ -12,7 +13,7 @@ export const CreateHexagon = (props: { boardSize: number }): ReactElement[] => {
         for (let s = -props.boardSize; s <= props.boardSize; s++) {
             for (let r = -props.boardSize; r <= props.boardSize; r++) {
                 if (q + r + s === 0) {
-                    res.push(<Hexagon q={q} r={r} s={s} key={`${q}${r}${s}`}/>);
+                    res.push(<Hexagon q={q} r={r} s={s} key={`${q}${r}${s}`} className='piece'/>);
                 }
             }
         }
@@ -47,7 +48,22 @@ export const Board = (props: { boardSize?: number }) => {
     );
 };
 
-export const Figures = () => {
+export const Pieces = (props: IFiguresBoardProps) => {
+    const generatePiecePositions = (): ReactElement[] => {
+        return props.figures.map((figure, index) => {
+            return (
+                <Hexagon
+                    q={figure.position.q} 
+                    r={figure.position.r} 
+                    s={figure.position.s} 
+                    key={index} 
+                    fill={`${figure.type}-${figure.color}`} 
+                    className='piece'
+                />
+            );
+        });
+    };
+
     return (
         <div
             data-testid='figures'
@@ -68,25 +84,15 @@ export const Figures = () => {
                 pointerEvents: 'none'
             }}>
                 <Layout size={{ x: 5, y: 5 }} flat={true} spacing={1.0} origin={{ x: 0, y: 0 }} className='board'>
-                    <Hexagon q={0} r={5} s={-5} fill="king_b" className='piece' />
-                    <Hexagon q={0} r={4} s={-4} fill="king_b" className='piece' />
-                    <Hexagon q={0} r={3} s={-3} fill="king_b" className='piece' />
-                    <Hexagon q={-1} r={5} s={-4} fill="king_b" className='piece' />
-                    <Hexagon q={-2} r={5} s={-3} fill="king_b" className='piece' />
-                    <Hexagon q={-3} r={5} s={-2} fill="king_b" className='piece' />
-                    <Hexagon q={-4} r={5} s={-1} fill="king_b" className='piece' />
-                    <Hexagon q={1} r={4} s={-5} fill="king_b" className='piece' />
-                    <Hexagon q={2} r={3} s={-5} fill="king_b" className='piece' />
-                    <Hexagon q={3} r={2} s={-5} fill="king_b" className='piece' />
-                    <Hexagon q={4} r={1} s={-5} fill="king_b" className='piece' />
-                    <Hexagon q={-3} r={4} s={-1} fill="king_b" className='piece' />
-                    <Hexagon q={-2} r={3} s={-1} fill="king_b" className='piece' />
-                    <Hexagon q={-1} r={2} s={-1} fill="king_b" className='piece' />
-                    <Hexagon q={-0} r={1} s={-1} fill="king_b" className='piece' />
-                    <Hexagon q={1} r={1} s={1} fill="king_b" className='piece' />
-                    <Hexagon q={2} r={1} s={2} fill="king_b" className='piece' />
-                    <Hexagon q={3} r={1} s={3} fill="king_b" className='piece' />
-                    <Pattern id="king_b" link="https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg" size={{x: 5, y: 5}}/>
+                    <>
+                        {generatePiecePositions()}
+                    </>
+                    <Pattern id="king-black" link="https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg" size={{x: 5, y: 5}}/>
+                    <Pattern id="queen-black" link="https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg" size={{x: 5, y: 5}}/>
+                    <Pattern id="rook-black" link="https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg" size={{x: 5, y: 5}}/>
+                    <Pattern id="pawn-black" link="https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg" size={{x: 5, y: 5}}/>
+                    <Pattern id="knight-black" link="https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg" size={{x: 5, y: 5}}/>
+                    <Pattern id="bishop-black" link="https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg" size={{x: 5, y: 5}}/>
                 </Layout>
             </HexGrid>
         </div>
