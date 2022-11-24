@@ -1,9 +1,10 @@
-import { Board } from './hexagonalchess/board';
+import { Board, Figures } from './hexagonalchess/board';
 
 const App = () => {
   return (
     <div>
       <Board/>
+      <Figures/>
     </div>
   );
 };
