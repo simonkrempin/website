@@ -48,6 +48,16 @@ const getMovableTiles = (figure: IHexaChessFigure | null): IHexaChessPosition[] 
     return possibleMoves[figure.type]();
 }
 
+const filterBlockedTiles = (tiles: IHexaChessPosition[] | undefined, pieces: IHexaChessFigure[] | undefined): IHexaChessPosition[] => {
+    if (!tiles || !pieces) return [];
+    
+    return tiles.filter(tile => {
+        return !pieces.some(figure => {
+            return figure.position.q === tile.q && figure.position.r === tile.r && figure.position.s === tile.s;
+        });
+    });
+}
+
 export const GameEngine = () => {
     const [ selectedPiece, setSelectedPiece ] = React.useState<IHexaChessFigure | null>(null);
 
@@ -95,7 +105,7 @@ export const GameEngine = () => {
         <div
             data-testid={testIds.frame}
         >
-            <Board highlightTiles={getMovableTiles(selectedPiece)}/>
+            <Board highlightTiles={filterBlockedTiles(getMovableTiles(selectedPiece), pieces)}/>
             <Pieces figures={pieces} onFigureClick={setSelectedPiece}/>
         </div>
     );
