@@ -17,6 +17,13 @@ export interface IHexaChessPosition {
     s: number;
 }
 
+export interface IBoardProps {
+    boardSize?: number;
+    highlightTiles?: IHexaChessPosition[];
+    setSelectedPiece: (figure: IHexaChessFigure | null) => void;
+    selectedPiece: IHexaChessFigure | null;
+}
+
 // interface Array<T> {
 //     contains(position: IHexaChessPosition): boolean;
 // }
