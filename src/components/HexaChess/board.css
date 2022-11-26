@@ -2,20 +2,27 @@
   fill-opacity: 0.6;
   pointer-events: auto;
 }
-.tile {
+#opponent {
+  pointer-events: none;
+}
+.tile-none {  
   fill: #dea550;
   fill-opacity: 0.6;
 }
-.tile:hover {
+.tile-none:hover {
   fill-opacity: 0.7;
 }
 .board {
   pointer-events: none;
 }
-.mark {
+.tile-possibleMove {
   fill: #d69a3f;
   fill-opacity: 0.8;
 }
-.mark:hover {
+.tile-possibleMove:hover {
   fill-opacity: 1;
+}
+.tile-possibleAttack {
+  fill: #d65d3f;
+  fill-opacity: 0.8;
 }
