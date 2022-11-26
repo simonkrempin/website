@@ -7,7 +7,7 @@
  */
 
 import React from "react";
-import { IHexaChessFigure, IHexaChessPosition, pieceTypes } from "../../interfaces/hexachess";
+import { IHexaChessPiece, IHexaChessPosition, IHexaChessTile, pieceTypes, IPlayer } from "../../interfaces/hexachess";
 import { Pieces, Board } from "./board";
 
 export const testIds = {
@@ -16,7 +16,7 @@ export const testIds = {
 
 const boardSize = 5;
 
-const pieces: IHexaChessFigure[] = [
+const pieces: IHexaChessPiece[] = [
     { type: "king", color: "black", position: { q: 1, r: 4, s: -5 } },
     { type: "queen", color: "black", position: { q: -1, r: 5, s: -5 } },
     { type: "rook", color: "black", position: { q: 3, r: 2, s: -5 } },
@@ -56,24 +56,31 @@ const pieces: IHexaChessFigure[] = [
     { type: "pawn", color: "white", position: { q: 4, r: -5, s: 1 } },
 ];
 
-const getMovableTiles = (figure: IHexaChessFigure | null): IHexaChessPosition[] | undefined => {
-    const directionalMove = (piece: IHexaChessFigure, dir: IHexaChessPosition): IHexaChessPosition[] => {
-        const res = [];
+const getMovableTiles = (figure: IHexaChessPiece | null): IHexaChessTile[] | undefined => {
+    const directionalMove = (piece: IHexaChessPiece, dir: IHexaChessPosition): IHexaChessTile[] => {
+        const res: IHexaChessTile[] = [];
         for (let i = 1; i < boardSize * 2; i++) {
             const newPos = {
                 q: piece.position.q + dir.q * i,
                 r: piece.position.r + dir.r * i,
                 s: piece.position.s + dir.s * i,
             };
-            if (filterBlockedTiles([newPos], pieces).length === 0) {
+
+            const testedTile = filterBlockedTiles([newPos], pieces)
+
+            if (testedTile.length === 0) break;
+            if (testedTile[0].type === "possibleAttack") {
+                res.push(testedTile[0]);
                 break;
             }
-            res.push(newPos);
+            res.push({ position: newPos, type: "possibleMove" });
         }
         return res;
+
+        //TODO: Könnte man hier nicht einfach einmal am Ende filtern und nach dem Attack / blocked Event alles entfernen?
     };
 
-    const diagonalMoves = (figure: IHexaChessFigure) => [
+    const diagonalMoves = (figure: IHexaChessPiece) => [
         ...directionalMove(figure, { q: 1, r: -2, s: 1 }),
         ...directionalMove(figure, { q: 2, r: -1, s: -1 }),
         ...directionalMove(figure, { q: 1, r: -2, s: 1 }),
@@ -82,7 +89,7 @@ const getMovableTiles = (figure: IHexaChessFigure | null): IHexaChessPosition[] 
         ...directionalMove(figure, { q: -1, r: -1, s: 2 }),
     ];
 
-    const straightMoves = (figure: IHexaChessFigure) => [
+    const straightMoves = (figure: IHexaChessPiece) => [
         ...directionalMove(figure, { q: 1, r: -1, s: 0 }),
         ...directionalMove(figure, { q: 0, r: -1, s: 1 }),
         ...directionalMove(figure, { q: -1, r: 0, s: 1 }),
@@ -93,7 +100,7 @@ const getMovableTiles = (figure: IHexaChessFigure | null): IHexaChessPosition[] 
 
     if (!figure) return undefined;
 
-    const possibleMoves: Record<pieceTypes, IHexaChessPosition[]> = {
+    const possibleMoves: Record<pieceTypes, IHexaChessTile[]> = {
         king: filterBlockedTiles(
             [
                 {
@@ -196,34 +203,49 @@ const getMovableTiles = (figure: IHexaChessFigure | null): IHexaChessPosition[] 
             ],
             pieces
         ),
-        pawn: [
-            {
-                q: figure.position.q,
-                r: figure.position.r + (figure.color === "white" ? 1 : -1),
-                s: figure.position.s + (figure.color === "white" ? -1 : 1),
-            },
-        ],
+        pawn: filterBlockedTiles(
+            [
+                {
+                    q: figure.position.q,
+                    r: figure.position.r + (figure.color === "white" ? 1 : -1),
+                    s: figure.position.s + (figure.color === "white" ? -1 : 1),
+                },
+            ],
+            pieces
+        ),
         queen: [...diagonalMoves(figure), ...straightMoves(figure)],
     };
 
     return possibleMoves[figure.type];
 };
 
-const filterBlockedTiles = (
-    tiles: IHexaChessPosition[] | undefined,
-    pieces: IHexaChessFigure[] | undefined
-): IHexaChessPosition[] => {
+/**
+ * Returns all the not blocked tiles inside the first array
+ * Returns all  enemy tiles inside the second array
+ */
+const filterBlockedTiles = (tiles?: IHexaChessPosition[], pieces?: IHexaChessPiece[]): IHexaChessTile[] => {
     if (!tiles || !pieces) return [];
 
-    return tiles.filter((tile) => {
-        return !pieces.some((figure) => {
-            return figure.position.q === tile.q && figure.position.r === tile.r && figure.position.s === tile.s;
-        });
-    });
+    const res: IHexaChessTile[] = [];
+    for (let i = 0; i < tiles.length; i++) {
+        const tile = tiles[i];
+        const piece = pieces.find((p) => p.position.q === tile.q && p.position.r === tile.r && p.position.s === tile.s);
+
+        if (piece === undefined) res.push({ position: { q: tile.q, r: tile.r, s: tile.s }, type: "possibleMove" });
+
+        if (piece?.color !== player.color) res.push({ position: { q: tile.q, r: tile.r, s: tile.s }, type: "possibleAttack" });
+    }
+
+    return res;
+};
+
+const player: IPlayer = {
+    name: "Player",
+    color: "black",
 };
 
 export const GameEngine = () => {
-    const [selectedPiece, setSelectedPiece] = React.useState<IHexaChessFigure | null>(null);
+    const [selectedPiece, setSelectedPiece] = React.useState<IHexaChessPiece | null>(null);
 
     return (
         <div data-testid={testIds.frame}>
@@ -231,8 +253,9 @@ export const GameEngine = () => {
                 highlightTiles={getMovableTiles(selectedPiece)}
                 setSelectedPiece={setSelectedPiece}
                 selectedPiece={selectedPiece}
+                pieces={pieces}
             />
-            <Pieces figures={pieces} onFigureClick={setSelectedPiece} />
+            <Pieces figures={pieces} onFigureClick={setSelectedPiece} player={player}/>
         </div>
     );
 };

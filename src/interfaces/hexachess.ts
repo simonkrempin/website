@@ -1,11 +1,17 @@
 export interface IFiguresBoardProps {
-    figures: IHexaChessFigure[];
-    onFigureClick: (figure: IHexaChessFigure) => void;
+    figures: IHexaChessPiece[];
+    onFigureClick: (figure: IHexaChessPiece) => void;
+    player: IPlayer;
+}
+
+export interface IPlayer {
+    name: string;
+    color: "white" | "black";
 }
 
 export type pieceTypes = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 
-export interface IHexaChessFigure {
+export interface IHexaChessPiece {
     type: "king" | "queen" | "bishop" | "knight" | "rook" | "pawn";
     color: "white" | "black";
     position: IHexaChessPosition;
@@ -17,11 +23,19 @@ export interface IHexaChessPosition {
     s: number;
 }
 
+export interface IHexaChessTile {
+    position: IHexaChessPosition;
+    type: TileType;
+}
+
+export type TileType = "none" | "possibleMove" | "possibleAttack";
+
 export interface IBoardProps {
     boardSize?: number;
-    highlightTiles?: IHexaChessPosition[];
-    setSelectedPiece: (figure: IHexaChessFigure | null) => void;
-    selectedPiece: IHexaChessFigure | null;
+    highlightTiles?: IHexaChessTile[];
+    setSelectedPiece: (figure: IHexaChessPiece | null) => void;
+    selectedPiece: IHexaChessPiece | null;
+    pieces: IHexaChessPiece[];
 }
 
 // interface Array<T> {

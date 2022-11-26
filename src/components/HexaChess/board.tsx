@@ -2,22 +2,42 @@ import React, { ReactElement } from "react";
 import { HexGrid, Layout, Hexagon, Text, Pattern, Path, Hex } from "react-hexgrid";
 import "./board.css";
 import { ReactSVG } from "react-svg";
-import { IBoardProps, IFiguresBoardProps, IHexaChessFigure, IHexaChessPosition } from "../../interfaces/hexachess";
+import {
+    IBoardProps,
+    IFiguresBoardProps,
+    IHexaChessPiece,
+    IHexaChessPosition,
+    IHexaChessTile,
+    TileType,
+} from "../../interfaces/hexachess";
 
 export const testId = "board";
 
-const highlightTilesContains = (position: IHexaChessPosition, positions: IHexaChessPosition[]): boolean => {
-    return positions.some((pos) => pos.q === position.q && pos.r === position.r);
+const highlightTilesContains = (position: IHexaChessPosition, tiles: IHexaChessTile[]): TileType | undefined => {
+    return tiles.find(
+        (tile) => tile.position.q === position.q && tile.position.r === position.r && tile.position.s === position.s
+    )?.type ?? "none";
 };
 
-export const CreateHexagon = (props: {
+export const CreateHexagons = (props: {
     boardSize: number;
-    highlightTiles: IHexaChessPosition[];
-    setSelectedPiece: (figure: IHexaChessFigure | null) => void;
-    selectedPiece: IHexaChessFigure | null; 
+    highlightTiles: IHexaChessTile[];
+    setSelectedPiece: (figure: IHexaChessPiece | null) => void;
+    selectedPiece: IHexaChessPiece | null;
+    pieces: IHexaChessPiece[];
 }): ReactElement[] => {
+
+    // TODO: this function should probably be moved to the game engine
     const onTileClick = (event: any, source: any) => {
-        if (source.props.className === "mark" && props.selectedPiece) {
+        if (source.props.className === "tile-possibleMove" && props.selectedPiece) {
+            props.selectedPiece.position = { q: source.props.q, r: source.props.r, s: source.props.s };
+        }
+        else if (source.props.className === "tile-possibleAttack" && props.selectedPiece) {
+            // find the opponent piece and remove it from the board
+            const enemyPiece = props.pieces.find(
+                (piece) => piece.position.q === source.props.q && piece.position.r === source.props.r && piece.position.s === source.props.s
+            );
+            if (enemyPiece) props.pieces.splice(props.pieces.indexOf(enemyPiece), 1);
             props.selectedPiece.position = { q: source.props.q, r: source.props.r, s: source.props.s };
         }
         props.setSelectedPiece(null);
@@ -29,14 +49,14 @@ export const CreateHexagon = (props: {
         for (let s = -props.boardSize; s <= props.boardSize; s++) {
             for (let r = -props.boardSize; r <= props.boardSize; r++) {
                 if (q + r + s === 0) {
-                    const isHighlightTile = highlightTilesContains({ q, r, s }, props.highlightTiles);
+                    const tileMark = highlightTilesContains({ q, r, s }, props.highlightTiles);
                     res.push(
                         <Hexagon
                             q={q}
                             r={r}
                             s={s}
                             key={`${q}${r}${s}`}
-                            className={isHighlightTile ? "mark" : "tile"}
+                            className={`tile-${tileMark}`}
                             onClick={onTileClick}
                         />
                     );
@@ -69,11 +89,12 @@ export const Board = (props: IBoardProps) => {
                 }}
             >
                 <Layout size={{ x: 5, y: 5 }} flat={true} spacing={1.05} origin={{ x: 0, y: 0 }}>
-                    {CreateHexagon({
+                    {CreateHexagons({
                         boardSize: props.boardSize ?? 5,
                         highlightTiles: props.highlightTiles ?? [],
                         setSelectedPiece: props.setSelectedPiece,
                         selectedPiece: props.selectedPiece,
+                        pieces: props.pieces,
                     })}
                 </Layout>
             </HexGrid>
@@ -96,6 +117,7 @@ export const Pieces = (props: IFiguresBoardProps) => {
                     key={index}
                     fill={`${figure.type}-${figure.color}`}
                     className="piece"
+                    id={figure.color !== props.player.color ? "opponent" : "player"}
                     data={figure}
                     onClick={onFigureClick}
                 />
