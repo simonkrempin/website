@@ -18,9 +18,9 @@ const boardSize = 5;
 
 const pieces: IHexaChessPiece[] = [
     { type: "king", color: "black", position: { q: 1, r: 4, s: -5 } },
-    { type: "queen", color: "black", position: { q: -1, r: 5, s: -5 } },
+    { type: "queen", color: "black", position: { q: -1, r: 5, s: -4 } },
     { type: "rook", color: "black", position: { q: 3, r: 2, s: -5 } },
-    { type: "rook", color: "black", position: { q: -3, r: 5, s: -5 } },
+    { type: "rook", color: "black", position: { q: -3, r: 5, s: -2 } },
     { type: "bishop", color: "black", position: { q: 0, r: 5, s: -5 } },
     { type: "bishop", color: "black", position: { q: 0, r: 4, s: -4 } },
     { type: "bishop", color: "black", position: { q: 0, r: 3, s: -3 } },
@@ -38,7 +38,7 @@ const pieces: IHexaChessPiece[] = [
 
     { type: "king", color: "white", position: { q: -1, r: -4, s: 5 } },
     { type: "queen", color: "white", position: { q: 1, r: -5, s: 4 } },
-    { type: "rook", color: "white", position: { q: 3, r: -5, s: -2 } },
+    { type: "rook", color: "white", position: { q: 3, r: -5, s: 2 } },
     { type: "rook", color: "white", position: { q: -3, r: -2, s: 5 } },
     { type: "bishop", color: "white", position: { q: 0, r: -5, s: 5 } },
     { type: "bishop", color: "white", position: { q: 0, r: -4, s: 4 } },
